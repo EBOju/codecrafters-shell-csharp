@@ -58,6 +58,10 @@ class Program
                 {
                     Console.WriteLine($"{commandArgument} is {fullPath}");
                 }
+                else
+                {
+                    Console.WriteLine($"{commandArgument}: not found");
+                }
             }
         }
         else
