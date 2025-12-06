@@ -5,7 +5,10 @@ using System.Text;
 class Program
 {
     private static readonly List<string> _builtIns = ["exit", "echo", "type"];
-    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':')];
+    //private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':')];
+    private static List<string> _pathVariable = [.. " /usr/bin:/usr/local/bin:$PATH".Split(':')];
+
+   
 
     static void Main()
     {
@@ -54,7 +57,7 @@ class Program
             foreach (string dir in _pathVariable)
             {
                 string fullPath = dir + "/" + commandArgument;
-                if (IsExecutable(fullPath))
+                if (File.Exists(fullPath) && IsExecutable(fullPath))
                 {
                     Console.WriteLine($"{commandArgument} is {fullPath}");
                 }
@@ -79,9 +82,6 @@ class Program
 
     private static bool IsExecutable(string fullExecutablePath)
     {
-        if (!File.Exists(fullExecutablePath))
-            return false;
-
         if (OperatingSystem.IsWindows())
         {
             var firstBytes = new byte[2];
