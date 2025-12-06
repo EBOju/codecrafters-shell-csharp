@@ -62,8 +62,6 @@ class Program
 
                 if (IsExecutable(fullPath))
                     Console.WriteLine($"{commandArgument} is {fullPath}");
-                else
-                    Console.WriteLine($"{commandArgument}: not found");
             }
         }
         else
@@ -81,25 +79,15 @@ class Program
 
     private static bool IsExecutable(string fullExecutablePath)
     {
-        //if (OperatingSystem.IsWindows())
-        //{
-        //    var firstBytes = new byte[2];
-        //    using (var fileStream = File.Open(fullExecutablePath, FileMode.Open))
-        //    {
-        //        fileStream.Read(firstBytes, 0, 2);
-        //    }
-        //    return Encoding.UTF8.GetString(firstBytes) == "MZ";
-        //}
-        //else
-        //{
-        //}
+        if (OperatingSystem.IsWindows())
+        {
+            return false;
+        }
 
         try
         {
             // Requires .NET 6+ (available on .NET 9)
-            var mode = File.GetUnixFileMode(fullExecutablePath);
-            const UnixFileMode execBits = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
-            return (mode & execBits) != 0;
+            return ((File.GetUnixFileMode(fullExecutablePath)) & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0;
         }
         catch
         {
