@@ -29,6 +29,8 @@ class Program
                     string commandFristPart = commandParts.Skip(1).First();
                     if (builtins.Contains(commandFristPart))
                         Console.WriteLine($"{commandFristPart} is a shell builtin");
+                    else if (File.Exists(commandFristPart))
+                        Console.WriteLine($"{commandFristPart} is {Path.GetFullPath(commandFristPart)}");
                     else
                         Console.WriteLine($"{commandFristPart}: not found");
                     break;
