@@ -26,20 +26,17 @@ class Program
             if (string.IsNullOrWhiteSpace(command) || command == "exit")
                 break;
 
-            if (commandArgs.Count > 1)
+            switch (command)
             {
-                switch (command)
-                {
-                    case "echo":
-                        EchoCommand(commandArgs);
-                        break;
-                    case "type":
-                        TypeCommand(commandArgs);
-                        break;
-                    default:
-                        Console.WriteLine($"{command}: command not found");
-                        break;
-                }
+                case "echo":
+                    EchoCommand(commandArgs);
+                    break;
+                case "type":
+                    TypeCommand(commandArgs);
+                    break;
+                default:
+                    Console.WriteLine($"{command}: command not found");
+                    break;
             }
         }
     }
@@ -51,31 +48,31 @@ class Program
         if (_builtIns.Contains(commandArgument))
         {
             Console.WriteLine($"{commandArgument} is a shell builtin");
+            return;
         }
-        else if (!string.IsNullOrWhiteSpace(commandArgument))
-        {
-            bool notfound = true;
 
-            foreach (string dir in _pathVariable)
-            {
-                string fullPath = dir + "/" + commandArgument;
-
-                if (File.Exists(fullPath) && IsExecutable(fullPath))
-                {
-                    Console.WriteLine($"{commandArgument} is {fullPath}");
-                    notfound = false;
-                    break;
-                }
-            }
-
-            if (notfound)
-                Console.WriteLine($"{commandArgument}: not found");
-        }
-        else
+        if (string.IsNullOrWhiteSpace(commandArgument))
         {
             Console.WriteLine($"{commandArgument}: not found");
+            return;
         }
 
+        bool notfound = true;
+
+        foreach (string dir in _pathVariable)
+        {
+            string fullPath = dir + "/" + commandArgument;
+
+            if (File.Exists(fullPath) && IsExecutable(fullPath))
+            {
+                Console.WriteLine($"{commandArgument} is {fullPath}");
+                notfound = false;
+                break;
+            }
+        }
+
+        if (notfound)
+            Console.WriteLine($"{commandArgument}: not found");
     }
 
     private static void EchoCommand(List<string> commandArgs)
