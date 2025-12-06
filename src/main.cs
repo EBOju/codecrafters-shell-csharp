@@ -5,10 +5,10 @@ using System.Text;
 class Program
 {
     private static readonly List<string> _builtIns = ["exit", "echo", "type"];
-    //private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':')];
-    private static List<string> _pathVariable = [.. " /usr/bin:/usr/local/bin:$PATH".Split(':')];
+    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':')];
+    //private static List<string> _pathVariable = [.. " /usr/bin:/usr/local/bin:$PATH".Split(':')];
 
-   
+
 
     static void Main()
     {
@@ -82,29 +82,30 @@ class Program
 
     private static bool IsExecutable(string fullExecutablePath)
     {
-        if (OperatingSystem.IsWindows())
+        //if (OperatingSystem.IsWindows())
+        //{
+        //    var firstBytes = new byte[2];
+        //    using (var fileStream = File.Open(fullExecutablePath, FileMode.Open))
+        //    {
+        //        fileStream.Read(firstBytes, 0, 2);
+        //    }
+        //    return Encoding.UTF8.GetString(firstBytes) == "MZ";
+        //}
+        //else
+        //{
+        //}
+
+        try
         {
-            var firstBytes = new byte[2];
-            using (var fileStream = File.Open(fullExecutablePath, FileMode.Open))
-            {
-                fileStream.Read(firstBytes, 0, 2);
-            }
-            return Encoding.UTF8.GetString(firstBytes) == "MZ";
+            // Requires .NET 6+ (available on .NET 9)
+            var mode = File.GetUnixFileMode(fullExecutablePath);
+            const UnixFileMode execBits = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
+            return (mode & execBits) != 0;
         }
-        else
+        catch
         {
-            try
-            {
-                // Requires .NET 6+ (available on .NET 9)
-                var mode = File.GetUnixFileMode(fullExecutablePath);
-                const UnixFileMode execBits = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
-                return (mode & execBits) != 0;
-            }
-            catch
-            {
-                // If we cannot obtain the mode, conservatively return false
-                return false;
-            }
+            // If we cannot obtain the mode, conservatively return false
+            return false;
         }
     }
 }
