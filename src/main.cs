@@ -54,6 +54,8 @@ class Program
         }
         else if (!string.IsNullOrWhiteSpace(commandArgument))
         {
+            bool notfound = true;
+
             foreach (string dir in _pathVariable)
             {
                 string fullPath = dir + "/" + commandArgument;
@@ -61,11 +63,13 @@ class Program
                 if (File.Exists(fullPath) && IsExecutable(fullPath))
                 {
                     Console.WriteLine($"{commandArgument} is {fullPath}");
+                    notfound = false;
                     break;
                 }
             }
 
-            Console.WriteLine($"{commandArgument}: not found");
+            if (notfound)
+                Console.WriteLine($"{commandArgument}: not found");
         }
         else
         {
