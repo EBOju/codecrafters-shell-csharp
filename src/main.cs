@@ -1,46 +1,106 @@
+using System;
 using System.Linq;
+using System.Text;
 
 class Program
 {
+    private static readonly List<string> _builtIns = ["exit", "echo", "type"];
+    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':')];
+
     static void Main()
     {
-        bool exit = false;
-
-        while (!exit)
+        while (true)
         {
             Console.Write("$ ");
 
-            string command = Console.ReadLine();
+            // get full command string
+            string commandString = Console.ReadLine();
 
-            string[] commandParts = command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            // split command string into command and arguments
+            List<string> commandArgs = [.. commandString.Split(" ")];
+            string command = commandArgs.FirstOrDefault();
 
-            List<string> builtins = ["exit", "echo", "type"];
+            if (string.IsNullOrWhiteSpace(command) || command == "exit")
+                break;
 
-            switch (commandParts.First())
+            if (commandArgs.Count > 1)
             {
-                case "exit":
-                    exit = true;
-                    break;
-                case "echo":
-                    string message = string.Join(' ', commandParts.Skip(1));
-                    Console.WriteLine(message);
-                    break;
-                case "type":
-                    string commandFristPart = commandParts.Skip(1).First();
-                    if (builtins.Contains(commandFristPart))
-                        Console.WriteLine($"{commandFristPart} is a shell builtin");
-                    else if (File.Exists(commandFristPart))
-                        Console.WriteLine($"{commandFristPart} is {Path.GetFullPath(commandFristPart)}");
-                    else
-                        Console.WriteLine($"{commandFristPart}: not found");
-                    break;
-                default:
-                    Console.WriteLine($"{command}: command not found");
-                    break;
+                switch (command)
+                {
+                    case "echo":
+                        EchoCommand(commandArgs);
+                        break;
+                    case "type":
+                        TypeCommand(commandArgs);
+                        break;
+                    default:
+                        Console.WriteLine($"{command}: command not found");
+                        break;
+                }
             }
+        }
+    }
 
-            if (exit)
-                return;
+    private static void TypeCommand(List<string> commandArgs)
+    {
+        string commandArgument = commandArgs.ElementAt(1);
+
+        if (_builtIns.Contains(commandArgument))
+        {
+            Console.WriteLine($"{commandArgument} is a shell builtin");
+        }
+        else if (!string.IsNullOrWhiteSpace(commandArgument))
+        {
+            foreach (string dir in _pathVariable)
+            {
+                string fullPath = dir + "/" + commandArgument;
+                if (File.Exists(fullPath) && IsExecutable(fullPath))
+                {
+                    Console.WriteLine($"{commandArgument} is {fullPath}");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine($"{commandArgument}: not found");
+        }
+
+    }
+
+    private static void EchoCommand(List<string> commandArgs)
+    {
+        string message = string.Join(' ', commandArgs.Skip(1));
+        Console.WriteLine(message);
+    }
+
+    private static bool IsExecutable(string fullExecutablePath)
+    {
+        if (!File.Exists(fullExecutablePath))
+            return false;
+
+        if (OperatingSystem.IsWindows())
+        {
+            var firstBytes = new byte[2];
+            using (var fileStream = File.Open(fullExecutablePath, FileMode.Open))
+            {
+                fileStream.Read(firstBytes, 0, 2);
+            }
+            return Encoding.UTF8.GetString(firstBytes) == "MZ";
+        }
+        else
+        {
+            try
+            {
+                // Requires .NET 6+ (available on .NET 9)
+                var mode = File.GetUnixFileMode(fullExecutablePath);
+                const UnixFileMode execBits = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
+                return (mode & execBits) != 0;
+            }
+            catch
+            {
+                // If we cannot obtain the mode, conservatively return false
+                return false;
+            }
         }
     }
 }
