@@ -61,7 +61,10 @@ class Program
                     continue;
 
                 if (IsExecutable(fullPath))
+                {
                     Console.WriteLine($"{commandArgument} is {fullPath}");
+                    continue;
+                }
 
                 Console.WriteLine($"{commandArgument}: not found");
             }
