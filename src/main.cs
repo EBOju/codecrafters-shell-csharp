@@ -5,8 +5,8 @@ using System.Text;
 class Program
 {
     private static readonly List<string> _builtIns = ["exit", "echo", "type"];
-    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':')];
-    //private static List<string> _pathVariable = [.. " /usr/bin:/usr/local/bin:$PATH".Split(':')];
+    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
+    //private static List<string> _pathVariable = [.. "/usr/bin:/usr/local/bin:$PATH".Split(':').Where(path => path != "$PATH")];
 
 
 
