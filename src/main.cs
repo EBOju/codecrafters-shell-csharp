@@ -28,9 +28,9 @@ class Program
                 case "type":
                     string commandFristPart = commandParts.Skip(1).First();
                     if (builtins.Contains(commandFristPart))
-                    {
                         Console.WriteLine($"{commandFristPart} is a shell builtin");
-                    }
+                    else
+                        Console.WriteLine($"{commandFristPart}: not found");
                     break;
                 default:
                     Console.WriteLine($"{command}: command not found");
