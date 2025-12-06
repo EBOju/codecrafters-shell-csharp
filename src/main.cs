@@ -12,7 +12,7 @@ class Program
 
             // Checking if the exit command is given
             if (command == "exit")
-                exit = true;
+                return;
 
             // Printing command not found for any other input
             Console.WriteLine($"{command}: command not found");
