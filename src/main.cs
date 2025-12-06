@@ -57,12 +57,15 @@ class Program
             foreach (string dir in _pathVariable)
             {
                 string fullPath = dir + "/" + commandArgument;
-                if (!File.Exists(fullPath))
-                    continue;
 
-                if (IsExecutable(fullPath))
+                if (File.Exists(fullPath) && IsExecutable(fullPath))
+                {
                     Console.WriteLine($"{commandArgument} is {fullPath}");
+                    break;
+                }
             }
+
+            Console.WriteLine($"{commandArgument}: not found");
         }
         else
         {
