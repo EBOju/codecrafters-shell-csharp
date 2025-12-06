@@ -57,14 +57,13 @@ class Program
             foreach (string dir in _pathVariable)
             {
                 string fullPath = dir + "/" + commandArgument;
-                if (File.Exists(fullPath) 
-                    && IsExecutable(fullPath))
-                {
-                    Console.WriteLine($"{commandArgument} is {fullPath}");
-                    continue;
-                }
+                //if (!File.Exists(fullPath))
+                //    continue;
 
-                Console.WriteLine($"{commandArgument}: not found");
+                if (File.Exists(fullPath) && IsExecutable(fullPath))
+                    Console.WriteLine($"{commandArgument} is {fullPath}");
+                else
+                    Console.WriteLine($"{commandArgument}: not found");
             }
         }
         else
@@ -99,7 +98,8 @@ class Program
         {
             // Requires .NET 6+ (available on .NET 9)
             var mode = File.GetUnixFileMode(fullExecutablePath);
-            return (mode & UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute) != 0;
+            const UnixFileMode execBits = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
+            return (mode & execBits) != 0;
         }
         catch
         {
