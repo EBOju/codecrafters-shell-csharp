@@ -57,10 +57,8 @@ class Program
             foreach (string dir in _pathVariable)
             {
                 string fullPath = dir + "/" + commandArgument;
-                if (!File.Exists(fullPath))
-                    continue;
-
-                if (IsExecutable(fullPath))
+                if (File.Exists(fullPath) 
+                    && IsExecutable(fullPath))
                 {
                     Console.WriteLine($"{commandArgument} is {fullPath}");
                     continue;
@@ -101,8 +99,7 @@ class Program
         {
             // Requires .NET 6+ (available on .NET 9)
             var mode = File.GetUnixFileMode(fullExecutablePath);
-            const UnixFileMode execBits = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
-            return (mode & execBits) != 0;
+            return (mode & UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute) != 0;
         }
         catch
         {
