@@ -8,8 +8,6 @@ class Program
     private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
     //private static List<string> _pathVariable = [.. "/usr/bin:/usr/local/bin:$PATH".Split(':').Where(path => path != "$PATH")];
 
-
-
     static void Main()
     {
         while (true)
@@ -35,10 +33,18 @@ class Program
                     TypeCommand(commandArgs);
                     break;
                 default:
+
+                    CheckExecutable();
+
                     Console.WriteLine($"{command}: command not found");
                     break;
             }
         }
+    }
+
+    private static void CheckExecutable()
+    {
+        throw new NotImplementedException();
     }
 
     private static void TypeCommand(List<string> commandArgs)
