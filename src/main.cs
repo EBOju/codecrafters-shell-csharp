@@ -49,6 +49,8 @@ class Program
 
     private static void CheckExecutable(string command, List<string> commandArgs)
     {
+        bool notfound = true;
+
         foreach (string dir in _pathVariable)
         {
             string fullPath = dir + "/" + command;
@@ -64,9 +66,13 @@ class Program
                     UseShellExecute = false,
                     CreateNoWindow = true,
                 })?.WaitForExit();
+                notfound = false;
                 break;
             }
         }
+
+        if (notfound)
+            Console.WriteLine($"{command}: not found");
     }
 
     private static void TypeCommand(List<string> commandArgs)
