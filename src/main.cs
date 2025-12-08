@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -24,27 +25,48 @@ class Program
             if (string.IsNullOrWhiteSpace(command) || command == "exit")
                 break;
 
-            switch (command)
+            if (!_builtIns.Contains(command))
             {
-                case "echo":
-                    EchoCommand(commandArgs);
-                    break;
-                case "type":
-                    TypeCommand(commandArgs);
-                    break;
-                default:
-
-                    CheckExecutable();
-
-                    Console.WriteLine($"{command}: command not found");
-                    break;
+                CheckExecutable(command, commandArgs);
+            }
+            else
+            {
+                switch (command)
+                {
+                    case "echo":
+                        EchoCommand(commandArgs);
+                        break;
+                    case "type":
+                        TypeCommand(commandArgs);
+                        break;
+                    default:
+                        Console.WriteLine($"{command}: command not found");
+                        break;
+                }
             }
         }
     }
 
-    private static void CheckExecutable()
+    private static void CheckExecutable(string command, List<string> commandArgs)
     {
-        // Comment
+        foreach (string dir in _pathVariable)
+        {
+            string fullPath = dir + "/" + command;
+
+            if (File.Exists(fullPath) && IsExecutable(fullPath))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = fullPath,
+                    Arguments = string.Join(' ', commandArgs.Skip(1)),
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                })?.WaitForExit();
+                break;
+            }
+        }
     }
 
     private static void TypeCommand(List<string> commandArgs)
