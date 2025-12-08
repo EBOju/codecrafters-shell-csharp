@@ -44,7 +44,7 @@ class Program
 
     private static void CheckExecutable()
     {
-        throw new NotImplementedException();
+        // Comment
     }
 
     private static void TypeCommand(List<string> commandArgs)
