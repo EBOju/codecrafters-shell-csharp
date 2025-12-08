@@ -57,7 +57,7 @@ class Program
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = fullPath,
+                    FileName = command,
                     Arguments = string.Join(' ', commandArgs.Skip(1)),
                     RedirectStandardOutput = false,
                     RedirectStandardError = false,
