@@ -25,11 +25,7 @@ class Program
             if (string.IsNullOrWhiteSpace(command) || command == "exit")
                 break;
 
-            if (!_builtIns.Contains(command))
-            {
-                CheckExecutable(command, commandArgs);
-            }
-            else
+            if (_builtIns.Contains(command))
             {
                 switch (command)
                 {
@@ -44,35 +40,32 @@ class Program
                         break;
                 }
             }
+            else
+            {
+                StartExecutable(command, commandArgs);
+            }
         }
     }
 
-    private static void CheckExecutable(string command, List<string> commandArgs)
+    private static void StartExecutable(string command, List<string> commandArgs)
     {
-        bool notfound = true;
+        string? fullPath = FindExecutable(command);
 
-        foreach (string dir in _pathVariable)
+        if (string.IsNullOrEmpty(fullPath))
         {
-            string fullPath = dir + "/" + command;
-
-            if (File.Exists(fullPath) && IsExecutable(fullPath))
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = command,
-                    Arguments = string.Join(' ', commandArgs.Skip(1)),
-                    RedirectStandardOutput = false,
-                    RedirectStandardError = false,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                })?.WaitForExit();
-                notfound = false;
-                break;
-            }
+            Console.WriteLine($"{command}: not found");
+            return;
         }
 
-        if (notfound)
-            Console.WriteLine($"{command}: not found");
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = command,
+            Arguments = string.Join(' ', commandArgs.Skip(1)),
+            RedirectStandardOutput = false,
+            RedirectStandardError = false,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        })?.WaitForExit();
     }
 
     private static void TypeCommand(List<string> commandArgs)
@@ -91,22 +84,30 @@ class Program
             return;
         }
 
-        bool notfound = true;
+        string? fullPath = FindExecutable(commandArgument);
 
+        if (string.IsNullOrEmpty(fullPath))
+        {
+            Console.WriteLine($"{commandArgument}: not found");
+            return;
+        }
+
+        Console.WriteLine($"{commandArgument} is {fullPath}");
+    }
+
+    private static string? FindExecutable(string executable)
+    {
         foreach (string dir in _pathVariable)
         {
-            string fullPath = dir + "/" + commandArgument;
+            string fullPath = dir + "/" + executable;
 
             if (File.Exists(fullPath) && IsExecutable(fullPath))
             {
-                Console.WriteLine($"{commandArgument} is {fullPath}");
-                notfound = false;
-                break;
+                return fullPath;
             }
         }
 
-        if (notfound)
-            Console.WriteLine($"{commandArgument}: not found");
+        return null;
     }
 
     private static void EchoCommand(List<string> commandArgs)
