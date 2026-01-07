@@ -4,7 +4,7 @@ namespace Shell;
 
 public class ExecutableHandler : IExecutableHandler
 {
-    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
+    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator)];
 
     public void StartExecutable(string command, List<string> args)
     {
@@ -23,7 +23,7 @@ public class ExecutableHandler : IExecutableHandler
     {
         foreach (string dir in _pathVariable)
         {
-            string fullPath = dir + "/" + executable;
+            string fullPath = dir + Path.DirectorySeparatorChar + executable;
 
             if (File.Exists(fullPath) && IsExecutable(fullPath))
             {
@@ -38,7 +38,49 @@ public class ExecutableHandler : IExecutableHandler
     {
         if (OperatingSystem.IsWindows())
         {
-            return false;
+            // Check PATHEXT
+            string ext = Path.GetExtension(fullExecutablePath);
+            string pathext = Environment.GetEnvironmentVariable("PATHEXT")
+                             ?? ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
+            var allowed = new HashSet<string>(
+                pathext.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                StringComparer.OrdinalIgnoreCase);
+
+            if (allowed.Contains(ext))
+            {
+                return true;
+            }
+
+            // Fallback: basic PE header check (MZ + PE\0\0) for native binaries
+            try
+            {
+                using var fs = File.OpenRead(fullExecutablePath);
+                Span<byte> mz = stackalloc byte[2];
+                if (fs.Read(mz) >= 2 && mz[0] == (byte)'M' && mz[1] == (byte)'Z')
+                {
+                    // e_lfanew is a 4-byte little-endian value at offset 0x3C
+                    fs.Seek(0x3C, SeekOrigin.Begin);
+                    Span<byte> e_lfanewBytes = stackalloc byte[4];
+                    if (fs.Read(e_lfanewBytes) == 4)
+                    {
+                        int e_lfanew = BitConverter.ToInt32(e_lfanewBytes);
+                        if (e_lfanew > 0)
+                        {
+                            fs.Seek(e_lfanew, SeekOrigin.Begin);
+                            Span<byte> pe = stackalloc byte[4];
+                            if (fs.Read(pe) == 4 && pe[0] == (byte)'P' && pe[1] == (byte)'E' && pe[2] == 0 && pe[3] == 0)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // conservative: if we can't read header, treat as non-executable
+                return false;
+            }
         }
 
         try

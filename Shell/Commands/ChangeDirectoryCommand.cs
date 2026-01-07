@@ -3,6 +3,7 @@
 public class ChangeDirectoryCommand : IBuiltInCommand
 {
     public string Name => "cd";
+
     public void Execute(List<string> commandArgs)
     {
         string destinationDirectory = string.Join(' ', commandArgs);
