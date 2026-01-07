@@ -58,7 +58,7 @@ class Program
         bool inSingleQuote = false;
 
         // quick check for no quotes
-        if (!commandString.Contains('\"'))
+        if (!commandString.Contains('\''))
         {
             return commandString.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
         }
