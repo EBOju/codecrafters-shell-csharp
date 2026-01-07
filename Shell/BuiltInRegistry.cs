@@ -1,4 +1,4 @@
-﻿using Shell.Command;
+﻿using Shell.Commands;
 
 namespace Shell;
 
@@ -10,5 +10,6 @@ public class BuiltInRegistry
         new PrintWorkingDirectoryCommand(),
         new TypeCommand(),
         new EchoCommand(),
+        new ExitCommand(),
     ];
 }

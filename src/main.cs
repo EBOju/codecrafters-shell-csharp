@@ -28,7 +28,7 @@ class Program
             string command = input.First();
             List<string> args = input.GetRange(1, input.Count - 1);
 
-            if (string.IsNullOrWhiteSpace(command) || command == "exit")
+            if (string.IsNullOrWhiteSpace(command))
                 break;
 
             if (BuiltInRegistry.BuiltIns.Any(builtIn => builtIn.Name == command))

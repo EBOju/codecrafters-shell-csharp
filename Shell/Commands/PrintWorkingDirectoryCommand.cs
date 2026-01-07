@@ -1,4 +1,4 @@
-﻿namespace Shell.Command;
+﻿namespace Shell.Commands;
 
 public class PrintWorkingDirectoryCommand : IBuiltInCommand
 {
