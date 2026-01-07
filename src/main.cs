@@ -57,6 +57,12 @@ class Program
         string currentArg = "";
         bool inSingleQuote = false;
 
+        // quick check for no quotes
+        if (!commandString.Contains('\"'))
+        {
+            return commandString.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+
         // iterate through each character in the command string
         for (int i = 0; i < commandString.Length; i++)
         {
