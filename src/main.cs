@@ -5,7 +5,7 @@ using System.Text;
 
 class Program
 {
-    private static readonly List<string> _builtIns = ["exit", "echo", "type", "pwd"];
+    private static readonly List<string> _builtIns = ["exit", "echo", "type", "pwd", "cd"];
     private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
     //private static List<string> _pathVariable = [.. "/usr/bin:/usr/local/bin:$PATH".Split(':').Where(path => path != "$PATH")];
 
@@ -36,7 +36,10 @@ class Program
                         TypeCommand(commandArgs);
                         break;
                     case "pwd":
-                        PWDCommand(); 
+                        PrintWorkingDirectoryCommand(); 
+                        break;
+                    case "cd":
+                        ChangeDirectoryCommand(commandArgs);
                         break;
                     default:
                         Console.WriteLine($"{command}: command not found");
@@ -50,7 +53,20 @@ class Program
         }
     }
 
-    private static void PWDCommand()
+    private static void ChangeDirectoryCommand(List<string> commandArgs)
+    {
+        string destinationDirectory = string.Join(' ', commandArgs);
+
+        if (!Directory.Exists(destinationDirectory))
+        {
+            Console.WriteLine($"cd: {destinationDirectory}: No such file or directory");
+            return;
+        }
+        
+        Directory.SetCurrentDirectory(destinationDirectory);
+    }
+
+    private static void PrintWorkingDirectoryCommand()
     {
         Console.WriteLine(Directory.GetCurrentDirectory());
     }
