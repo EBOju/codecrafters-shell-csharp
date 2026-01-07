@@ -16,6 +16,18 @@ public class ExecutableHandler : IExecutableHandler
             return;
         }
 
+        // Testing
+        string commandargmuments = "";
+
+        foreach (string arg in args)
+        {
+            string test = arg.Replace(" ", string.Empty);
+            commandargmuments += test + " ";
+        }
+
+        commandargmuments = commandargmuments.Trim();
+        //Testing
+
         Process.Start(new ProcessStartInfo
         {
             FileName = command,
