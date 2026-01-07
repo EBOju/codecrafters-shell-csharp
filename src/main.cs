@@ -61,16 +61,15 @@ class Program
         // iterate through each character in the command string
         for (int i = 0; i < commandString.Length; i++)
         {
-            // check for single quotes
-            if (commandString[i] == '\'')
-            {
-                // toggle inSingleQuote flag
-                inSingleQuote = !inSingleQuote;
-            }
-            else if (commandString[i] == '"')
+            if (commandString[i] == '"')
             {
                 // toggle inDoubleQuote flag
                 inDoubleQuote = !inDoubleQuote;
+            }
+            else if (commandString[i] == '\'' && !inDoubleQuote)
+            {
+                // toggle inSingleQuote flag
+                inSingleQuote = !inSingleQuote;
             }
             else
             {
@@ -79,7 +78,7 @@ class Program
             }
 
             // if we hit a space and we're not in single quotes, or we're at the end of the string, finalize the current argument
-            if (i == commandString.Length - 1 || (commandString[i] == ' ' && (!inSingleQuote || !inSingleQuote)))
+            if (i == commandString.Length - 1 || (commandString[i] == ' ' && (!inSingleQuote || !inDoubleQuote)))
             {
                 args.Add(currentArg.Trim());
                 currentArg = "";
