@@ -5,7 +5,7 @@ using System.Text;
 
 class Program
 {
-    private static readonly List<string> _builtIns = ["exit", "echo", "type"];
+    private static readonly List<string> _builtIns = ["exit", "echo", "type", "pwd"];
     private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
     //private static List<string> _pathVariable = [.. "/usr/bin:/usr/local/bin:$PATH".Split(':').Where(path => path != "$PATH")];
 
@@ -19,8 +19,8 @@ class Program
             string commandString = Console.ReadLine();
 
             // split command string into command and arguments
-            List<string> commandArgs = [.. commandString.Split(" ")];
-            string command = commandArgs.FirstOrDefault();
+            List<string> commandArgs = [.. commandString.Split(" ").Skip(1)];
+            string command = commandString.Split(" ").First();
 
             if (string.IsNullOrWhiteSpace(command) || command == "exit")
                 break;
@@ -35,6 +35,9 @@ class Program
                     case "type":
                         TypeCommand(commandArgs);
                         break;
+                    case "pwd":
+                        PWDCommand(); 
+                        break;
                     default:
                         Console.WriteLine($"{command}: command not found");
                         break;
@@ -45,6 +48,11 @@ class Program
                 StartExecutable(command, commandArgs);
             }
         }
+    }
+
+    private static void PWDCommand()
+    {
+        Console.WriteLine(Directory.GetCurrentDirectory());
     }
 
     private static void StartExecutable(string command, List<string> commandArgs)
@@ -60,7 +68,7 @@ class Program
         Process.Start(new ProcessStartInfo
         {
             FileName = command,
-            Arguments = string.Join(' ', commandArgs.Skip(1)),
+            Arguments = string.Join(' ', commandArgs),
             RedirectStandardOutput = false,
             RedirectStandardError = false,
             UseShellExecute = false,
@@ -70,7 +78,7 @@ class Program
 
     private static void TypeCommand(List<string> commandArgs)
     {
-        string commandArgument = commandArgs.ElementAt(1);
+        string commandArgument = commandArgs.First();
 
         if (_builtIns.Contains(commandArgument))
         {
@@ -112,7 +120,7 @@ class Program
 
     private static void EchoCommand(List<string> commandArgs)
     {
-        string message = string.Join(' ', commandArgs.Skip(1));
+        string message = string.Join(' ', commandArgs);
         Console.WriteLine(message);
     }
 
