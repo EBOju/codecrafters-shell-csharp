@@ -6,7 +6,7 @@ public class ExecutableHandler : IExecutableHandler
 {
     private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
 
-    public void StartExecutable(string command, List<string> commandArgs)
+    public void StartExecutable(string command, List<string> args)
     {
         string? fullPath = FindExecutable(command);
 
@@ -16,10 +16,12 @@ public class ExecutableHandler : IExecutableHandler
             return;
         }
 
+        string commandArgs = command + " " + string.Join(' ', args);
+
         Process.Start(new ProcessStartInfo
         {
             FileName = command,
-            Arguments = string.Join(' ', commandArgs),
+            Arguments = commandArgs,
             RedirectStandardOutput = false,
             RedirectStandardError = false,
             UseShellExecute = false,
