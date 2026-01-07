@@ -45,10 +45,7 @@ class Program
             }
             else
             {
-                foreach (var arg in args)
-                {
-                    _executableHandler.StartExecutable(command, arg.Split(' ').ToList());
-                }
+                _executableHandler.StartExecutable(command, args);
             }
         }
     }
