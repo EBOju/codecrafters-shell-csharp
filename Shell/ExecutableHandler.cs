@@ -4,11 +4,7 @@ namespace Shell;
 
 public class ExecutableHandler : IExecutableHandler
 {
-    private readonly List<string> _pathVariable = Environment.GetEnvironmentVariable("PATH")?
-        .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
-        .ToList() ?? new List<string>();
-
-    //private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
+    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(':').Where(path => path != "$PATH")];
 
     public void StartExecutable(string command, List<string> commandArgs)
     {
