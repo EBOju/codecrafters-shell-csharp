@@ -16,17 +16,15 @@ public class ExecutableHandler : IExecutableHandler
             return;
         }
 
-        Process.Start(command, args[0..]).WaitForExit();
-
-        //Process.Start(new ProcessStartInfo
-        //{
-        //    FileName = command,
-        //    Arguments = string.Join(' ', args),
-        //    RedirectStandardOutput = false,
-        //    RedirectStandardError = false,
-        //    UseShellExecute = false,
-        //    CreateNoWindow = true,
-        //})?.WaitForExit();
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = command,
+            Arguments = string.Join(' ', args),
+            RedirectStandardOutput = false,
+            RedirectStandardError = false,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        })?.WaitForExit();
     }
 
     public string? FindExecutable(string executable)
