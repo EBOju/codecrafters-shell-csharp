@@ -16,12 +16,10 @@ public class ExecutableHandler : IExecutableHandler
             return;
         }
 
-        string commandArgs = command + " " + string.Join(' ', args);
-
         Process.Start(new ProcessStartInfo
         {
             FileName = command,
-            Arguments = commandArgs,
+            Arguments = string.Join(' ', args),
             RedirectStandardOutput = false,
             RedirectStandardError = false,
             UseShellExecute = false,

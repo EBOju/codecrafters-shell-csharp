@@ -7,7 +7,6 @@ public class EchoCommand : IBuiltInCommand
     public void Execute(List<string> args)
     {
         string message = string.Join(' ', args);
-        //string message = string.Join(' ', args).Replace("'", string.Empty);
         Console.WriteLine(message);
     }
 }

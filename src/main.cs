@@ -78,8 +78,6 @@ class Program
                 currentArg += commandString[i];
             }
 
-            //currentArg += commandString[i];
-
             // if we hit a space and we're not in single quotes, or we're at the end of the string, finalize the current argument
             if (i == commandString.Length - 1 || (commandString[i] == ' ' && !inSingleQuote))
             {
