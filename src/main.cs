@@ -1,5 +1,5 @@
 using Shell;
-using Shell.Command;
+using Shell.Commands;
 using System;
 using System.Diagnostics;
 using System.Linq;
