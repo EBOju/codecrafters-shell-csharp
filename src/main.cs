@@ -61,12 +61,12 @@ class Program
         // iterate through each character in the command string
         for (int i = 0; i < commandString.Length; i++)
         {
-            if (commandString[i] == '"')
+            if (commandString[i].Equals('"'))
             {
                 // toggle inDoubleQuote flag
                 inDoubleQuote = !inDoubleQuote;
             }
-            else if (commandString[i] == '\'' && !inDoubleQuote)
+            else if (commandString[i].Equals('\'') && !inDoubleQuote)
             {
                 // toggle inSingleQuote flag
                 inSingleQuote = !inSingleQuote;
@@ -81,9 +81,11 @@ class Program
             if (i == commandString.Length - 1 || (commandString[i] == ' ' && (!inSingleQuote || !inDoubleQuote)))
             {
                 args.Add(currentArg.Trim());
-                currentArg = "";
+                currentArg = string.Empty;
             }
         }
+
+        args.RemoveAll(arg => string.IsNullOrWhiteSpace(arg));
 
         return args;
     }
