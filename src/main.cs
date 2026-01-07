@@ -56,6 +56,8 @@ class Program
 
         string currentArg = "";
         bool inSingleQuote = false;
+        bool inDoubleQuote = false;
+
 
         // quick check for no quotes
         if (!commandString.Contains('\''))
@@ -72,6 +74,11 @@ class Program
                 // toggle inSingleQuote flag
                 inSingleQuote = !inSingleQuote;
             }
+            else if (commandString[i] == '"')
+            {
+                // toggle inDoubleQuote flag
+                inDoubleQuote = !inDoubleQuote;
+            }
             else
             {
                 // add character to current argument
@@ -79,7 +86,7 @@ class Program
             }
 
             // if we hit a space and we're not in single quotes, or we're at the end of the string, finalize the current argument
-            if (i == commandString.Length - 1 || (commandString[i] == ' ' && !inSingleQuote))
+            if (i == commandString.Length - 1 || (commandString[i] == ' ' && (!inSingleQuote || !inSingleQuote)))
             {
                 args.Add(currentArg.Trim());
                 currentArg = "";
