@@ -36,7 +36,7 @@ class Program
                         TypeCommand(commandArgs);
                         break;
                     case "pwd":
-                        PrintWorkingDirectoryCommand(); 
+                        PrintWorkingDirectoryCommand();
                         break;
                     case "cd":
                         ChangeDirectoryCommand(commandArgs);
@@ -57,12 +57,17 @@ class Program
     {
         string destinationDirectory = string.Join(' ', commandArgs);
 
+        if (destinationDirectory == "~")
+        {
+            destinationDirectory = Environment.GetEnvironmentVariable("HOME");
+        }
+
         if (!Directory.Exists(destinationDirectory))
         {
             Console.WriteLine($"cd: {destinationDirectory}: No such file or directory");
             return;
         }
-        
+
         Directory.SetCurrentDirectory(destinationDirectory);
     }
 
