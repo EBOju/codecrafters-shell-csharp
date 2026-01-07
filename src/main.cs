@@ -18,12 +18,15 @@ class Program
             // get full command string
             string? commandString = Console.ReadLine();
 
-            if(string.IsNullOrWhiteSpace(commandString))
+            if (string.IsNullOrWhiteSpace(commandString))
                 continue;
 
             // split command string into command and arguments
-            List<string> commandArgs = [.. commandString.Split(" ").Skip(1)];
-            string command = commandString.Split(" ").First();
+            List<string> input = SplitInput(commandString);
+
+            // extract command and arguments
+            string command = input.First();
+            List<string> args = input.GetRange(1, input.Count - 1);
 
             if (string.IsNullOrWhiteSpace(command) || command == "exit")
                 break;
@@ -33,7 +36,7 @@ class Program
                 try
                 {
                     IBuiltInCommand builtInCommand = BuiltInRegistry.BuiltIns.First(builtIn => builtIn.Name == command);
-                    builtInCommand.Execute(commandArgs);
+                    builtInCommand.Execute(args);
                 }
                 catch (Exception)
                 {
@@ -42,9 +45,41 @@ class Program
             }
             else
             {
-                _executableHandler.StartExecutable(command, commandArgs);
+                _executableHandler.StartExecutable(command, args);
             }
         }
     }
 
+    private static List<string> SplitInput(string commandString)
+    {
+        List<string> args = [];
+
+        string currentArg = "";
+        bool inSingleQuote = false;
+
+        // iterate through each character in the command string
+        for (int i = 0; i < commandString.Length; i++)
+        {
+            // check for single quotes
+            if (commandString[i] == '\'')
+            {
+                // toggle inSingleQuote flag
+                inSingleQuote = !inSingleQuote;
+            }
+            else
+            {
+                // add character to current argument
+                currentArg += commandString[i];
+            }
+
+            // if we hit a space and we're not in single quotes, or we're at the end of the string, finalize the current argument
+            if (i == commandString.Length - 1 || (commandString[i] == ' ' && !inSingleQuote))
+            {
+                args.Add(currentArg.Trim());
+                currentArg = "";
+            }
+        }
+
+        return args;
+    }
 }
