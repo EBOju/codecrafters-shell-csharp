@@ -78,7 +78,7 @@ class Program
             }
 
             // if we hit a space and we're not in single quotes, or we're at the end of the string, finalize the current argument
-            if (i == commandString.Length - 1 || (commandString[i] == ' ' && (!inSingleQuote || !inDoubleQuote)))
+            if (i == commandString.Length - 1 || (commandString[i] == ' ' && !inSingleQuote && !inDoubleQuote))
             {
                 args.Add(currentArg.Trim());
                 currentArg = string.Empty;
