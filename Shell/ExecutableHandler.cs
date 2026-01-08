@@ -7,7 +7,7 @@ using System.Linq;
 namespace Shell;
 
 /// <summary>
-/// Executable handler.
+/// Handles operations related to executing system commands and locating executables in the system's PATH.
 /// </summary>
 public class ExecutableHandler : IExecutableHandler
 {
@@ -15,10 +15,10 @@ public class ExecutableHandler : IExecutableHandler
         [.. Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator)];
 
     /// <summary>
-    /// Starts an executable.
+    /// Starts an executable process with the specified command and arguments.
     /// </summary>
-    /// <param name="command"></param>
-    /// <param name="args"></param>
+    /// <param name="command">The name or path of the executable to be run.</param>
+    /// <param name="args">A list of arguments to be passed to the executable.</param>
     public void StartExecutable(string command, List<string> args)
     {
         var fullPath = FindExecutable(command);
@@ -32,6 +32,11 @@ public class ExecutableHandler : IExecutableHandler
         Process.Start(new ProcessStartInfo(command, args))?.WaitForExit();
     }
 
+    /// <summary>
+    /// Searches for the specified executable in the system's PATH environment variable and verifies its existence.
+    /// </summary>
+    /// <param name="executable">The name of the executable to locate.</param>
+    /// <returns>The full path to the executable if found and valid; otherwise, null.</returns>
     public string? FindExecutable(string executable)
     {
         foreach (string dir in PathVariable)
@@ -44,6 +49,12 @@ public class ExecutableHandler : IExecutableHandler
         return null;
     }
 
+    /// <summary>
+    /// Determines whether the specified file is an executable based on the file extension,
+    /// file header, or permissions, depending on the operating system.
+    /// </summary>
+    /// <param name="fullExecutablePath">The full file path of the executable to check.</param>
+    /// <returns>True if the file is an executable; otherwise, false.</returns>
     private static bool IsExecutable(string fullExecutablePath)
     {
         if (OperatingSystem.IsWindows())
