@@ -1,4 +1,6 @@
-﻿namespace Shell;
+﻿using System.Collections.Generic;
+
+namespace Shell;
 
 public interface IBuiltInCommand
 {

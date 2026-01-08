@@ -1,4 +1,8 @@
-﻿namespace Shell.Commands;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Shell.Commands;
 
 public class ChangeDirectoryCommand : IBuiltInCommand
 {
@@ -6,12 +10,10 @@ public class ChangeDirectoryCommand : IBuiltInCommand
 
     public void Execute(List<string> commandArgs)
     {
-        string destinationDirectory = string.Join(' ', commandArgs);
+        var destinationDirectory = string.Join(' ', commandArgs);
 
         if (destinationDirectory == "~")
-        {
             destinationDirectory = Environment.GetEnvironmentVariable("HOME") ?? string.Empty;
-        }
 
         if (!Directory.Exists(destinationDirectory))
         {

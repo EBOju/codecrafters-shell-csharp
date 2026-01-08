@@ -1,11 +1,9 @@
-using Shell;
-using Shell.Commands;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Shell;
 
-class Program
+internal class Program
 {
     private static readonly ExecutableHandler ExecutableHandler = new();
     private static readonly BuiltInRegistry BuiltInRegistry = new();
@@ -31,9 +29,8 @@ class Program
 
             if (string.IsNullOrWhiteSpace(commandString))
                 break;
-            
+
             if (BuiltInRegistry.BuiltIns.Any(builtIn => builtIn.Name == commandString))
-            {
                 try
                 {
                     var builtInCommand = BuiltInRegistry.BuiltIns.First(builtIn => builtIn.Name == commandString);
@@ -43,11 +40,8 @@ class Program
                 {
                     Console.WriteLine($"{commandString}: command not found");
                 }
-            }
             else
-            {
                 ExecutableHandler.StartExecutable(commandString, args);
-            }
         }
     }
 
@@ -67,15 +61,11 @@ class Program
             {
                 // handle single quotes
                 if (commandString[index].Equals('\'') && !inDoubleQuote)
-                {
                     // toggle inSingleQuote flag
                     inSingleQuote = !inSingleQuote;
-                }
                 else
-                {
                     // add character to the current argument
                     currentArg += commandString[index];
-                }
             }
             else
             {
@@ -84,7 +74,8 @@ class Program
             }
 
             // check for argument boundary
-            if (index != commandString.Length - 1 && (commandString[index] != ' ' || inSingleQuote || inDoubleQuote)) continue;
+            if (index != commandString.Length - 1 &&
+                (commandString[index] != ' ' || inSingleQuote || inDoubleQuote)) continue;
 
             // end of argument reached, add to an args list
             args.Add(currentArg.Trim());

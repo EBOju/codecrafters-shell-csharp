@@ -1,4 +1,7 @@
-﻿namespace Shell.Commands;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Shell.Commands;
 
 public class EchoCommand : IBuiltInCommand
 {
@@ -6,7 +9,7 @@ public class EchoCommand : IBuiltInCommand
 
     public void Execute(List<string> args)
     {
-        string message = string.Join(' ', args);
+        var message = string.Join(' ', args);
         Console.WriteLine(message);
     }
 }

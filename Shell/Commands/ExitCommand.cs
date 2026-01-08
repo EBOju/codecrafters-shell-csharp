@@ -1,4 +1,7 @@
-﻿namespace Shell.Commands;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Shell.Commands;
 
 public class ExitCommand : IBuiltInCommand
 {

@@ -1,4 +1,8 @@
-﻿namespace Shell.Commands;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Shell.Commands;
 
 public class PrintWorkingDirectoryCommand : IBuiltInCommand
 {

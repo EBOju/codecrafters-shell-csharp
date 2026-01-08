@@ -1,14 +1,27 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace Shell;
 
+/// <summary>
+/// Executable handler.
+/// </summary>
 public class ExecutableHandler : IExecutableHandler
 {
-    private static List<string> _pathVariable = [.. Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator)];
+    private static readonly List<string> PathVariable =
+        [.. Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator)];
 
+    /// <summary>
+    /// Starts an executable.
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="args"></param>
     public void StartExecutable(string command, List<string> args)
     {
-        string? fullPath = FindExecutable(command);
+        var fullPath = FindExecutable(command);
 
         if (string.IsNullOrEmpty(fullPath))
         {
@@ -21,16 +34,13 @@ public class ExecutableHandler : IExecutableHandler
 
     public string? FindExecutable(string executable)
     {
-        foreach (string dir in _pathVariable)
+        foreach (string dir in PathVariable)
         {
-            string fullPath = dir + Path.DirectorySeparatorChar + executable;
+            var fullPath = dir + Path.DirectorySeparatorChar + executable;
 
-            if (File.Exists(fullPath) && IsExecutable(fullPath))
-            {
-                return fullPath;
-            }
+            if (File.Exists(fullPath) && IsExecutable(fullPath)) return fullPath;
         }
-
+        
         return null;
     }
 
@@ -40,16 +50,13 @@ public class ExecutableHandler : IExecutableHandler
         {
             // Check PATHEXT
             string ext = Path.GetExtension(fullExecutablePath);
-            string pathext = Environment.GetEnvironmentVariable("PATHEXT")
-                             ?? ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
+            var pathext = Environment.GetEnvironmentVariable("PATHEXT")
+                          ?? ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
             var allowed = new HashSet<string>(
                 pathext.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                 StringComparer.OrdinalIgnoreCase);
 
-            if (allowed.Contains(ext))
-            {
-                return true;
-            }
+            if (allowed.Contains(ext)) return true;
 
             // Fallback: basic PE header check (MZ + PE\0\0) for native binaries
             try
@@ -68,10 +75,8 @@ public class ExecutableHandler : IExecutableHandler
                         {
                             fs.Seek(e_lfanew, SeekOrigin.Begin);
                             Span<byte> pe = stackalloc byte[4];
-                            if (fs.Read(pe) == 4 && pe[0] == (byte)'P' && pe[1] == (byte)'E' && pe[2] == 0 && pe[3] == 0)
-                            {
-                                return true;
-                            }
+                            if (fs.Read(pe) == 4 && pe[0] == (byte)'P' && pe[1] == (byte)'E' && pe[2] == 0 &&
+                                pe[3] == 0) return true;
                         }
                     }
                 }
@@ -86,11 +91,12 @@ public class ExecutableHandler : IExecutableHandler
         try
         {
             // Requires .NET 6+ (available on .NET 9)
-            return ((File.GetUnixFileMode(fullExecutablePath)) & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0;
+            return (File.GetUnixFileMode(fullExecutablePath) &
+                    (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0;
         }
         catch
         {
-            // If we cannot obtain the mode, conservatively return false
+            // If we cannot get the mode, conservatively return false
             return false;
         }
     }

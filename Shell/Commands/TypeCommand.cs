@@ -1,9 +1,13 @@
-﻿namespace Shell.Commands;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Shell.Commands;
 
 public class TypeCommand : IBuiltInCommand
 {
     private static readonly BuiltInRegistry BuiltInRegistry = new();
-    
+
     public string Name => "type";
 
     public void Execute(List<string> args)
@@ -23,7 +27,7 @@ public class TypeCommand : IBuiltInCommand
         }
 
         IExecutableHandler executableHandler = new ExecutableHandler();
-        string? fullPath = executableHandler.FindExecutable(commandArgument);
+        var fullPath = executableHandler.FindExecutable(commandArgument);
 
         if (string.IsNullOrEmpty(fullPath))
         {
