@@ -2,9 +2,9 @@
 
 namespace Shell;
 
-public class BuiltInRegistry
+public class BuiltInRegistry : IBuiltInRegistry
 {
-    public static readonly List<IBuiltInCommand> BuiltIns =
+    public List<IBuiltInCommand> BuiltIns { get; } =
     [
         new ChangeDirectoryCommand(),
         new PrintWorkingDirectoryCommand(),

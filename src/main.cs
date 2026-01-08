@@ -7,45 +7,46 @@ using System.Text;
 
 class Program
 {
-    private readonly static ExecutableHandler _executableHandler = new();
+    private static readonly ExecutableHandler ExecutableHandler = new();
+    private static readonly BuiltInRegistry BuiltInRegistry = new();
 
-    static void Main()
+    private static void Main()
     {
         while (true)
         {
             Console.Write("$ ");
 
             // get full command string
-            string? commandString = Console.ReadLine();
+            var userInput = Console.ReadLine();
 
-            if (string.IsNullOrWhiteSpace(commandString))
+            if (string.IsNullOrWhiteSpace(userInput))
                 continue;
 
             // split command string into command and arguments
-            List<string> input = SplitInput(commandString);
+            var inputList = SplitInput(userInput);
 
             // extract command and arguments
-            string command = input.First();
-            List<string> args = input.GetRange(1, input.Count - 1);
+            var commandString = inputList.First();
+            var args = inputList.GetRange(1, inputList.Count - 1);
 
-            if (string.IsNullOrWhiteSpace(command))
+            if (string.IsNullOrWhiteSpace(commandString))
                 break;
-
-            if (BuiltInRegistry.BuiltIns.Any(builtIn => builtIn.Name == command))
+            
+            if (BuiltInRegistry.BuiltIns.Any(builtIn => builtIn.Name == commandString))
             {
                 try
                 {
-                    IBuiltInCommand builtInCommand = BuiltInRegistry.BuiltIns.First(builtIn => builtIn.Name == command);
+                    var builtInCommand = BuiltInRegistry.BuiltIns.First(builtIn => builtIn.Name == commandString);
                     builtInCommand.Execute(args);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine($"{command}: command not found");
+                    Console.WriteLine($"{commandString}: command not found");
                 }
             }
             else
             {
-                _executableHandler.StartExecutable(command, args);
+                ExecutableHandler.StartExecutable(commandString, args);
             }
         }
     }
@@ -54,38 +55,44 @@ class Program
     {
         List<string> args = [];
 
-        string currentArg = "";
-        bool inSingleQuote = false;
-        bool inDoubleQuote = false;
+        var currentArg = "";
+        var inSingleQuote = false;
+        var inDoubleQuote = false;
 
         // iterate through each character in the command string
-        for (int i = 0; i < commandString.Length; i++)
+        for (var index = 0; index < commandString.Length; index++)
         {
-            if (commandString[i].Equals('"'))
+            // handle quotes
+            if (!commandString[index].Equals('"'))
+            {
+                // handle single quotes
+                if (commandString[index].Equals('\'') && !inDoubleQuote)
+                {
+                    // toggle inSingleQuote flag
+                    inSingleQuote = !inSingleQuote;
+                }
+                else
+                {
+                    // add character to the current argument
+                    currentArg += commandString[index];
+                }
+            }
+            else
             {
                 // toggle inDoubleQuote flag
                 inDoubleQuote = !inDoubleQuote;
             }
-            else if (commandString[i].Equals('\'') && !inDoubleQuote)
-            {
-                // toggle inSingleQuote flag
-                inSingleQuote = !inSingleQuote;
-            }
-            else
-            {
-                // add character to current argument
-                currentArg += commandString[i];
-            }
 
-            // if we hit a space and we're not in single quotes, or we're at the end of the string, finalize the current argument
-            if (i == commandString.Length - 1 || (commandString[i] == ' ' && !inSingleQuote && !inDoubleQuote))
-            {
-                args.Add(currentArg.Trim());
-                currentArg = string.Empty;
-            }
+            // check for argument boundary
+            if (index != commandString.Length - 1 && (commandString[index] != ' ' || inSingleQuote || inDoubleQuote)) continue;
+
+            // end of argument reached, add to an args list
+            args.Add(currentArg.Trim());
+            currentArg = string.Empty;
         }
 
-        args.RemoveAll(arg => string.IsNullOrWhiteSpace(arg));
+        // remove empty arguments
+        args.RemoveAll(string.IsNullOrWhiteSpace);
 
         return args;
     }

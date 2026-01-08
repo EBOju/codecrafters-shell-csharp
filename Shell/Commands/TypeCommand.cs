@@ -2,6 +2,8 @@
 
 public class TypeCommand : IBuiltInCommand
 {
+    private static readonly BuiltInRegistry BuiltInRegistry = new();
+    
     public string Name => "type";
 
     public void Execute(List<string> args)
@@ -20,7 +22,7 @@ public class TypeCommand : IBuiltInCommand
             return;
         }
 
-        ExecutableHandler executableHandler = new();
+        IExecutableHandler executableHandler = new ExecutableHandler();
         string? fullPath = executableHandler.FindExecutable(commandArgument);
 
         if (string.IsNullOrEmpty(fullPath))
