@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Shell;
 
-internal class Program
+internal abstract class Program
 {
     private static readonly ExecutableHandler ExecutableHandler = new();
     private static readonly BuiltInRegistry BuiltInRegistry = new();
@@ -21,15 +21,17 @@ internal class Program
                 continue;
 
             // split command string into command and arguments
-            var inputList = SplitInput(userInput);
+            var inputList = SplitCommandArguments(userInput);
 
             // extract command and arguments
             var commandString = inputList.First();
             var args = inputList.GetRange(1, inputList.Count - 1);
-
+            
+            // check if the command is a built-in command
             if (string.IsNullOrWhiteSpace(commandString))
                 break;
-
+            
+            // execute the command
             if (BuiltInRegistry.BuiltIns.Any(builtIn => builtIn.Name == commandString))
                 try
                 {
@@ -45,7 +47,7 @@ internal class Program
         }
     }
 
-    private static List<string> SplitInput(string commandString)
+    private static List<string> SplitCommandArguments(string commandString)
     {
         List<string> args = [];
 
