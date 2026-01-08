@@ -3,22 +3,45 @@ using Shell.Commands;
 
 namespace Shell;
 
-/// <summary>
-/// Represents a registry for managing and storing built-in commands available in the shell environment.
-/// </summary>
-/// <remarks>
-/// The <c>BuiltInRegistry</c> class provides a centralized structure to define and access default commands
-/// that are built into the shell. These commands include functionalities such as changing directories,
-/// printing the current working directory, echoing text output, executing commands, and exiting the shell.
-/// </remarks>
 public class BuiltInRegistry : IBuiltInRegistry
 {
-    public List<IBuiltInCommand> BuiltIns { get; } =
-    [
-        new ChangeDirectoryCommand(),
-        new PrintWorkingDirectoryCommand(),
-        new TypeCommand(),
-        new EchoCommand(),
-        new ExitCommand()
-    ];
+    private readonly Dictionary<string, IBuiltInCommand> _builtIns;
+
+    public BuiltInRegistry()
+    {
+        // initialize built-in commands
+        var commands = new List<IBuiltInCommand>
+        {
+            new ChangeDirectoryCommand(),
+            new PrintWorkingDirectoryCommand(),
+            new TypeCommand(),
+            new EchoCommand(),
+            new ExitCommand()
+        };
+
+        // build dictionary of built-in commands
+        _builtIns = commands.ToDictionary(command => command.Name);
+    }
+
+    public IEnumerable<IBuiltInCommand> BuiltIns => _builtIns.Values;
+
+    /// <summary>
+    /// Determines whether a command name corresponds to a built-in command in the registry.
+    /// </summary>
+    /// <param name="commandName">The name of the command to check.</param>
+    /// <returns><c>true</c> if the command is a built-in command; otherwise, <c>false</c>.</returns>
+    public bool IsBuiltIn(string commandName)
+    {
+        return !string.IsNullOrEmpty(commandName) && _builtIns.ContainsKey(commandName);
+    }
+
+    /// <summary>
+    /// Retrieves a built-in command by its name from the registry.
+    /// </summary>
+    /// <param name="commandName">The name of the command to retrieve.</param>
+    /// <returns>The <see cref="IBuiltInCommand"/> instance if found; otherwise, null.</returns>
+    public IBuiltInCommand? GetCommand(string commandName)
+    {
+        return string.IsNullOrEmpty(commandName) ? null : _builtIns.GetValueOrDefault(commandName);
+    }
 }

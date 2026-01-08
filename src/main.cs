@@ -30,13 +30,13 @@ internal abstract class Program
             // check if the command is a built-in command
             if (string.IsNullOrWhiteSpace(commandString))
                 break;
-            
+
             // execute the command
-            if (BuiltInRegistry.BuiltIns.Any(builtIn => builtIn.Name == commandString))
+            var builtIn = BuiltInRegistry.GetCommand(commandString);
+            if (builtIn != null)
                 try
                 {
-                    var builtInCommand = BuiltInRegistry.BuiltIns.First(builtIn => builtIn.Name == commandString);
-                    builtInCommand.Execute(args);
+                    builtIn.Execute(args);
                 }
                 catch (Exception)
                 {
