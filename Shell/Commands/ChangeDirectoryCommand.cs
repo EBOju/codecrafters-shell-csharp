@@ -12,12 +12,15 @@ public class ChangeDirectoryCommand : IBuiltInCommand
     public string Name => "cd";
 
     /// <summary>
-    /// Changes the current working directory of the shell environment.
+    /// Executes the "cd" command, changing the current working directory
+    /// to the specified destination directory.
     /// </summary>
-    /// <param name="commandArgs">A list of arguments where the first element specifies the target directory. Special value "~" resolves to the user's home directory.</param>
-    public void Execute(List<string> commandArgs)
+    /// <param name="commandArgs">The target directory path to change to.
+    /// If "~" is provided, it will navigate to the home directory. If the
+    /// directory does not exist, an error message will be displayed.</param>
+    public void Execute(string commandArgs)
     {
-        var destinationDirectory = string.Join(' ', commandArgs);
+        var destinationDirectory = commandArgs;
 
         if (destinationDirectory == "~")
             destinationDirectory = Environment.GetEnvironmentVariable("HOME") ?? string.Empty;

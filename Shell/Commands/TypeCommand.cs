@@ -16,40 +16,34 @@ public class TypeCommand : IBuiltInCommand
     public string Name => "type";
 
     /// <summary>
-    /// Executes the "type" command, which determines if a given argument corresponds to a
-    /// shell built-in command or an executable, and outputs its type or location.
+    /// Executes the "type" command. Determines whether a specified command
+    /// is a shell built-in or an executable and provides its path if it is
+    /// an executable.
     /// </summary>
-    /// <param name="args">
-    /// A list of command-line arguments where the first argument represents the name
-    /// of the command or executable to check.
-    /// </param>
-    public void Execute(List<string> args)
+    /// <param name="args">The name of the command to identify.</param>
+    public void Execute(string args)
     {
-        if (args.Count == 0) return;
-
-        string commandArgument = args[0];
-
-        if (string.IsNullOrWhiteSpace(commandArgument))
+        if (string.IsNullOrWhiteSpace(args))
         {
-            Console.WriteLine($"{commandArgument}: not found");
+            Console.WriteLine($"{args}: not found");
             return;
         }
 
-        if (BuiltInRegistry.IsBuiltIn(commandArgument))
+        if (BuiltInRegistry.IsBuiltIn(args))
         {
-            Console.WriteLine($"{commandArgument} is a shell builtin");
+            Console.WriteLine($"{args} is a shell builtin");
             return;
         }
 
         var executableHandler = new ExecutableHandler();
-        var fullPath = executableHandler.FindExecutable(commandArgument);
+        var fullPath = executableHandler.FindExecutable(args);
 
         if (string.IsNullOrEmpty(fullPath))
         {
-            Console.WriteLine($"{commandArgument}: not found");
+            Console.WriteLine($"{args}: not found");
             return;
         }
 
-        Console.WriteLine($"{commandArgument} is {fullPath}");
+        Console.WriteLine($"{args} is {fullPath}");
     }
 }

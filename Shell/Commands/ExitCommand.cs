@@ -8,10 +8,9 @@ public class ExitCommand : IBuiltInCommand
     public string Name => "exit";
 
     /// <summary>
-    /// Executes the command with the provided arguments.
+    /// Exits the shell application.
     /// </summary>
-    /// <param name="args">A list of arguments passed to the command for execution.</param>
-    public void Execute(List<string> args)
+    public void Execute(string args)
     {
         Environment.Exit(Environment.ExitCode);
     }

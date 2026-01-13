@@ -16,10 +16,14 @@ public class PrintWorkingDirectoryCommand : IBuiltInCommand
     public string Name => "pwd";
 
     /// <summary>
-    /// Executes the "pwd" command, printing the current working directory to the console.
+    /// Executes the built-in "pwd" command, which prints the current working directory
+    /// to the console in a shell environment.
     /// </summary>
-    /// <param name="args">A list of arguments passed to the command. This command does not utilize any arguments.</param>
-    public void Execute(List<string> args)
+    /// <param name="args">
+    /// Reserved for potential arguments passed to the command. This implementation
+    /// does not require or utilize any arguments.
+    /// </param>
+    public void Execute(string args)
     {
         Console.WriteLine(Directory.GetCurrentDirectory());
     }

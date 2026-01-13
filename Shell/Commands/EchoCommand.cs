@@ -11,12 +11,12 @@ public class EchoCommand : IBuiltInCommand
     public string Name => "echo";
 
     /// <summary>
-    /// Executes the command with the provided arguments.
+    /// Executes the command using the provided arguments.
     /// </summary>
-    /// <param name="args">A list of arguments passed to the command for execution.</param>
-    public void Execute(List<string> args)
+    /// <param name="args">The arguments to be processed by the command.</param>
+    public void Execute(string args)
     {
-        var message = string.Join(' ', args);
+        var message = args;
         Console.WriteLine(message);
     }
 }
