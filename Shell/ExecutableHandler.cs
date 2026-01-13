@@ -15,10 +15,10 @@ public class ExecutableHandler : IExecutableHandler
         [.. Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator)];
 
     /// <summary>
-    /// Starts an executable process with the specified command and arguments.
+    /// Starts the specified executable with the provided arguments.
     /// </summary>
-    /// <param name="command">The name or path of the executable to be run.</param>
-    /// <param name="args">A list of arguments to be passed to the executable.</param>
+    /// <param name="command">The name of the executable to start.</param>
+    /// <param name="args">A list of arguments to pass to the executable.</param>
     public void StartExecutable(string command, List<string> args)
     {
         var fullPath = FindExecutable(command);
@@ -29,7 +29,18 @@ public class ExecutableHandler : IExecutableHandler
             return;
         }
 
-        Process.Start(new ProcessStartInfo(command, args))?.WaitForExit();
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = command,
+            UseShellExecute = false
+        };
+
+        foreach (var arg in args)
+        {
+            startInfo.ArgumentList.Add(arg);
+        }
+
+        Process.Start(startInfo)?.WaitForExit();
     }
 
     /// <summary>
@@ -45,7 +56,7 @@ public class ExecutableHandler : IExecutableHandler
 
             if (File.Exists(fullPath) && IsExecutable(fullPath)) return fullPath;
         }
-        
+
         return null;
     }
 

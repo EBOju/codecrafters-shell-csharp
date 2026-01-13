@@ -31,6 +31,7 @@ internal abstract class Program
             // execute the command
             var builtIn = BuiltInRegistry.GetCommand(parser.Command);
             if (builtIn != null)
+            {
                 try
                 {
                     builtIn.Execute(parser.Arguments);
@@ -39,8 +40,16 @@ internal abstract class Program
                 {
                     Console.WriteLine($"{parser.Command}: command not found");
                 }
+            }
+            else if (ExecutableHandler.FindExecutable(parser.Command) != null &&
+                     !string.IsNullOrWhiteSpace(parser.Arguments))
+            {
+                ExecutableHandler.StartExecutable(parser.Command, parser.ArgumentsList);
+            }
             else
-                ExecutableHandler.StartExecutable(parser.Command, parser.Arguments);
+            {
+                Console.WriteLine($"{parser.Command}: command not found");
+            }
         }
     }
 }
