@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace Shell;
 
@@ -7,6 +8,7 @@ public class CommandLineParser
     private readonly string _commandLine;
     private readonly int _maxIndex;
     private int _currentIndex;
+    private int _commandLength;
     private List<char?> _doubleQuoteSpecialChars = ['"', '\\'];
 
     public string Command { get; private set; } = string.Empty;
@@ -63,7 +65,7 @@ public class CommandLineParser
     /// </summary>
     private void ResetIndex()
     {
-        _currentIndex = Command.Length > 0 ? Command.Length + 1 : 0;
+        _currentIndex = _commandLength > 0 ? _commandLength + 1 : 0;
     }
 
     /// <summary>
@@ -169,6 +171,7 @@ public class CommandLineParser
                         currentArgument += nextChar;
                         AdvanceIndex(); // Skip the escaped char so it's not processed by the loop
                     }
+
                     break;
                 case ' ' when !isDoubleQuote && !isSingleQuote:
                     FlushArgument();
@@ -203,25 +206,36 @@ public class CommandLineParser
     /// </returns>
     private string ParseCommand()
     {
-        var returnValue = string.Empty;
+        var returnValue = new StringBuilder();
         var isEnd = false;
+        var isSingleQuote = false;
+        var isDoubleQuote = false;
 
-        while (!isEnd)
+        while (!IsAtEndOfString() && !isEnd)
         {
-            returnValue += CurrentChar();
+            var c = CurrentChar();
 
-            if (NextChar() == null)
-                break;
-
-            if (NextChar() == ' ')
+            switch (c)
             {
-                AdvanceIndex();
-                isEnd = true;
+                case '"' when !isSingleQuote:
+                    isDoubleQuote = !isDoubleQuote;
+                    break;
+                case '\'' when !isDoubleQuote:
+                    isSingleQuote = !isSingleQuote;
+                    break;
+                case ' ' when !isDoubleQuote && !isSingleQuote:
+                    isEnd = true;
+                    break;
+                default:
+                    returnValue.Append(c);
+                    break;
             }
 
             AdvanceIndex();
         }
 
-        return returnValue;
+        _commandLength = _currentIndex - 1;
+
+        return returnValue.ToString();
     }
 }
