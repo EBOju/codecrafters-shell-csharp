@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Shell;
 
 public class CommandLineParser
@@ -107,6 +109,7 @@ public class CommandLineParser
                     if (NextChar() != null && !NextChar().Equals('\''))
                         isSingleQuote = !isSingleQuote;
                     break;
+                case '\\' when isDoubleQuote:
                 case '\\' when !isDoubleQuote && !isSingleQuote:
                     if (NextChar() != null)
                         argumentString += NextChar();
@@ -215,6 +218,7 @@ public class CommandLineParser
                         currentArgument = string.Empty;
                         break;
                     }
+
                     break;
             }
 
