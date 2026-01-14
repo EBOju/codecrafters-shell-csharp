@@ -7,6 +7,7 @@ public class CommandLineParser
     private readonly string _commandLine;
     private readonly int _maxIndex;
     private int _currentIndex;
+    private List<char?> _doubleQuoteSpecialChars = ['"', '\\'];
 
     public string Command { get; private set; } = string.Empty;
     public string Arguments { get; private set; } = string.Empty;
@@ -109,7 +110,7 @@ public class CommandLineParser
                     if (NextChar() != null && !NextChar().Equals('\''))
                         isSingleQuote = !isSingleQuote;
                     break;
-                case '\\' when isDoubleQuote:
+                case '\\' when isDoubleQuote && _doubleQuoteSpecialChars.Contains(NextChar()):
                 case '\\' when !isDoubleQuote && !isSingleQuote:
                     if (NextChar() != null)
                         argumentString += NextChar();
@@ -153,79 +154,57 @@ public class CommandLineParser
         while (!IsAtEndOfString())
         {
             var c = CurrentChar();
+            var next = NextChar();
 
             switch (c)
             {
+                // 1. Handle Quotes: Toggle state and flush if closing
                 case '"' when !isSingleQuote:
-
-                    if (NextChar() == null)
-                    {
-                        argumentList.Add(currentArgument);
-                        currentArgument = string.Empty;
-                        break;
-                    }
-
-                    if (!NextChar().Equals('"'))
-                    {
-                        if (isDoubleQuote)
-                        {
-                            argumentList.Add(currentArgument);
-                            currentArgument = string.Empty;
-                            AdvanceIndex();
-                        }
-
-                        isDoubleQuote = !isDoubleQuote;
-                    }
-
+                    if (isDoubleQuote) FlushArgument();
+                    isDoubleQuote = !isDoubleQuote;
                     break;
+
                 case '\'' when !isDoubleQuote:
-                    if (NextChar() == null)
-                    {
-                        argumentList.Add(currentArgument);
-                        currentArgument = string.Empty;
-                        break;
-                    }
-
-                    if (!NextChar().Equals('\''))
-                    {
-                        if (isSingleQuote)
-                        {
-                            argumentList.Add(currentArgument);
-                            currentArgument = string.Empty;
-                            AdvanceIndex();
-                        }
-
-                        isSingleQuote = !isSingleQuote;
-                    }
-
+                    if (isSingleQuote) FlushArgument();
+                    isSingleQuote = !isSingleQuote;
                     break;
-                case '\\' when !isDoubleQuote && !isSingleQuote:
-                    if (NextChar() != null)
-                        currentArgument += NextChar();
-                    AdvanceIndex();
+
+                // 2. Handle Escapes: Consume the NEXT character immediately
+                case '\\' when (isDoubleQuote && _doubleQuoteSpecialChars.Contains(next)) || (!isDoubleQuote && !isSingleQuote):
+                    if (next is char validNext)
+                    {
+                        currentArgument += validNext;
+                        AdvanceIndex(); // Skip the escaped char so it's not processed by the loop
+                    }
                     break;
+
+                // 3. Handle Delimiters
                 case ' ' when !isDoubleQuote && !isSingleQuote:
-                    argumentList.Add(currentArgument);
-                    currentArgument = string.Empty;
-
+                    FlushArgument();
                     break;
+
+                // 4. Everything else
                 default:
                     currentArgument += c;
-
-                    if (NextChar() == null)
-                    {
-                        argumentList.Add(currentArgument);
-                        currentArgument = string.Empty;
-                        break;
-                    }
-
                     break;
             }
 
             AdvanceIndex();
         }
 
+        // This handles the case where the string ends while an argument is still being built
+        // (e.g., the last char was 'a' or a closing quote)
+        FlushArgument();
+
         return argumentList;
+
+        void FlushArgument()
+        {
+            if (string.IsNullOrEmpty(currentArgument)) return;
+
+            argumentList.Add(currentArgument);
+            currentArgument = string.Empty;
+        }
     }
 
     /// <summary>
