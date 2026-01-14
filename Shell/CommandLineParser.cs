@@ -78,18 +78,17 @@ public class CommandLineParser
 
 
     /// <summary>
-    /// Parses the arguments from the command line input, handling quoted sections
-    /// and special characters appropriately.
+    /// Parses the argument portion of the command line input, handling quotes, escape sequences,
+    /// and spaces appropriately. This method processes the input to extract the arguments as a single string.
     /// </summary>
     /// <returns>
-    /// A string containing the parsed arguments from the command line.
+    /// A string representing the extracted arguments from the command line input.
     /// </returns>
     private string ParseArguments()
     {
         ResetIndex();
 
         var argumentString = string.Empty;
-
         var isSingleQuote = false;
         var isDoubleQuote = false;
 
@@ -130,18 +129,17 @@ public class CommandLineParser
     }
 
     /// <summary>
-    /// Parses the arguments from the command line string into a list of individual arguments,
-    /// taking into account quoted substrings and escape sequences.
+    /// Parses the command line input and returns a list of arguments, handling quoted and escaped characters appropriately.
     /// </summary>
-    /// <returns>A list of string arguments extracted from the command line string.</returns>
+    /// <returns>
+    /// A list of strings representing individual arguments extracted from the command line input.
+    /// </returns>
     private List<string> ParseArgumentsToList()
     {
         ResetIndex();
 
         var argumentList = new List<string>();
-
         var currentArgument = string.Empty;
-
         var isSingleQuote = false;
         var isDoubleQuote = false;
 
@@ -155,7 +153,6 @@ public class CommandLineParser
 
             switch (c)
             {
-                // 1. Handle Quotes: Toggle state and flush if closing
                 case '"' when !isSingleQuote:
                     if (isDoubleQuote) FlushArgument();
                     isDoubleQuote = !isDoubleQuote;
@@ -165,8 +162,6 @@ public class CommandLineParser
                     if (isSingleQuote) FlushArgument();
                     isSingleQuote = !isSingleQuote;
                     break;
-
-                // 2. Handle Escapes: Consume the NEXT character immediately
                 case '\\' when (isDoubleQuote && _doubleQuoteSpecialChars.Contains(nextChar)) ||
                                (!isDoubleQuote && !isSingleQuote):
                     if (nextChar != null)
@@ -174,15 +169,10 @@ public class CommandLineParser
                         currentArgument += nextChar;
                         AdvanceIndex(); // Skip the escaped char so it's not processed by the loop
                     }
-
                     break;
-
-                // 3. Handle Delimiters
                 case ' ' when !isDoubleQuote && !isSingleQuote:
                     FlushArgument();
                     break;
-
-                // 4. Everything else
                 default:
                     currentArgument += c;
                     break;
