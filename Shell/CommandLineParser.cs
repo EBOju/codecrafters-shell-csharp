@@ -99,27 +99,24 @@ public class CommandLineParser
         while (!IsAtEndOfString())
         {
             var c = CurrentChar();
+            var nextChar = NextChar();
 
             switch (c)
             {
                 case '"' when !isSingleQuote:
-                    if (NextChar() != null && !NextChar().Equals('"'))
-                        isDoubleQuote = !isDoubleQuote;
+                    isDoubleQuote = !isDoubleQuote;
                     break;
                 case '\'' when !isDoubleQuote:
-                    if (NextChar() != null && !NextChar().Equals('\''))
-                        isSingleQuote = !isSingleQuote;
+                    isSingleQuote = !isSingleQuote;
                     break;
-                case '\\' when isDoubleQuote && _doubleQuoteSpecialChars.Contains(NextChar()):
-                case '\\' when !isDoubleQuote && !isSingleQuote:
-                    if (NextChar() != null)
-                        argumentString += NextChar();
+                case '\\' when (isDoubleQuote && _doubleQuoteSpecialChars.Contains(nextChar)) ||
+                               (!isDoubleQuote && !isSingleQuote):
+                    if (nextChar != null)
+                        argumentString += nextChar;
                     AdvanceIndex();
                     break;
                 case ' ' when !isDoubleQuote && !isSingleQuote:
-                    if (NextChar() == ' ')
-                        break;
-                    argumentString += c;
+                    if (nextChar != ' ') argumentString += c;
                     break;
                 default:
                     argumentString += c;
@@ -154,7 +151,7 @@ public class CommandLineParser
         while (!IsAtEndOfString())
         {
             var c = CurrentChar();
-            var next = NextChar();
+            var nextChar = NextChar();
 
             switch (c)
             {
@@ -170,12 +167,14 @@ public class CommandLineParser
                     break;
 
                 // 2. Handle Escapes: Consume the NEXT character immediately
-                case '\\' when (isDoubleQuote && _doubleQuoteSpecialChars.Contains(next)) || (!isDoubleQuote && !isSingleQuote):
-                    if (next is char validNext)
+                case '\\' when (isDoubleQuote && _doubleQuoteSpecialChars.Contains(nextChar)) ||
+                               (!isDoubleQuote && !isSingleQuote):
+                    if (nextChar != null)
                     {
-                        currentArgument += validNext;
+                        currentArgument += nextChar;
                         AdvanceIndex(); // Skip the escaped char so it's not processed by the loop
                     }
+
                     break;
 
                 // 3. Handle Delimiters
@@ -192,8 +191,7 @@ public class CommandLineParser
             AdvanceIndex();
         }
 
-        // This handles the case where the string ends while an argument is still being built
-        // (e.g., the last char was 'a' or a closing quote)
+        // Flush the last argument
         FlushArgument();
 
         return argumentList;
